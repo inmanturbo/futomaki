@@ -2,9 +2,9 @@
 
 namespace Inmanturbo\Futomaki;
 
+use Inmanturbo\Futomaki\Commands\FutomakiCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Inmanturbo\Futomaki\Commands\FutomakiCommand;
 
 class FutomakiServiceProvider extends PackageServiceProvider
 {

@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Inmanturbo\Futomaki\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class FutomakiCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'futomaki';
 
     public $description = 'My command';
 

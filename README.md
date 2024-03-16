@@ -122,6 +122,48 @@ Or implement a mutator
     }
 ```
 
+## Lifecycle
+
+Here are the following lifecycle methods and their defaults, you may overwrite any one of them to change the way Futomaki saves and deletes to the remote connection.
+
+```php
+    public static function savingFutumaki(Model $model)
+    {
+        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+            return;
+        }
+
+        $model->setTable($model->getRemoteTable());
+        $model->saveQuietly();
+    }
+
+    public static function deletingFutumaki(Model $model)
+    {
+        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+            return;
+        }
+
+        $model->setTable($model->getRemoteTable());
+        $model->deleteQuietly();
+    }
+
+    public static function savedFutumaki(Model $model)
+    {
+        match (true) {
+            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            default => $model->writeCSV(),
+        };
+    }
+
+    public static function deletedFutumaki(Model $model)
+    {
+        match (true) {
+            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            default => $model->writeCSV(),
+        };
+    }
+```
+
 ## Testing
 
 ```bash

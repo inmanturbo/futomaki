@@ -45,6 +45,7 @@ class Post extends Model implements FutomakiContract
     public function checkForRemoteUpdates(): bool
     {
         return false;
+        
         $latestOnremote = static::getRemote()->run(fn () => DB::table($this->getRemoteTable() ?? $this->getTable())->max('updated_at'))->return();
         $latestRemoteTimestamp = strtotime($latestOnremote);
         $latestLocal = app(HasDatastoreContext::class)->datastoreContext()->database()->run(fn () => DB::table($this->getTable())->max('updated_at'))->return();

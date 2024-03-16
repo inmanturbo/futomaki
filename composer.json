@@ -18,7 +18,7 @@
     "require": {
         "php": "^8.2",
         "calebporzio/sushi": "dev-main",
-        "envor/laravel-datastore": "^1.2",
+        "envor/laravel-datastore": "^1.2.10",
         "envor/laravel-schema-macros": "^1.1.4",
         "illuminate/contracts": "^11.0",
         "spatie/laravel-package-tools": "^1.16.2",

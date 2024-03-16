@@ -124,6 +124,10 @@ trait Futomaki
 
     protected static function cacheFileNotFoundOrStale($cachePath, $dataPath, $instance)
     {
+        if (! file_exists($cachePath)) {
+            file_put_contents($cachePath, '');
+        }
+
         static::setMigrationConnection($cachePath);
 
         static::resolveConnection()->getSchemaBuilder()->dropIfExists($instance->getTable());

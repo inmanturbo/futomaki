@@ -39,6 +39,42 @@ trait Futomaki
         return config('sushi.cache-prefix', 'sushi').'-'.Str::kebab(str_replace(['/', "\00", '\\'], ' ', static::class));
     }
 
+    public static function savingFutumaki(Model $model)
+    {
+        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+            return;
+        }
+
+        $model->setTable($model->getRemoteTable());
+        $model->saveQuietly();
+    }
+
+    public static function deletingFutumaki(Model $model)
+    {
+        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+            return;
+        }
+
+        $model->setTable($model->getRemoteTable());
+        $model->deleteQuietly();
+    }
+
+    public static function savedFutumaki(Model $model)
+    {
+        match (true) {
+            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            default => $model->writeCSV(),
+        };
+    }
+
+    public static function deletedFutumaki(Model $model)
+    {
+        match (true) {
+            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            default => $model->writeCSV(),
+        };
+    }
+
     public static function bootFutomaki()
     {
         $instance = (new static);
@@ -48,35 +84,19 @@ trait Futomaki
         }
 
         static::saving(function (Model $model) {
-            if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-                return;
-            }
-
-            $model->setTable($model->getRemoteTable());
-            $model->saveQuietly();
+            static::savingFutumaki($model);
         });
 
         static::deleting(function (Model $model) {
-            if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-                return;
-            }
-
-            $model->setTable($model->getRemoteTable());
-            $model->deleteQuietly();
+            static::deletingFutumaki($model);
         });
 
         static::saved(function (Model $model) {
-            match (true) {
-                method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
-                default => $model->writeCSV(),
-            };
+            static::savedFutumaki($model);
         });
 
         static::deleted(function (Model $model) {
-            match (true) {
-                method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
-                default => $model->writeCSV(),
-            };
+            static::deletedFutumaki($model);
         });
     }
 

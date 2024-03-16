@@ -79,7 +79,10 @@ class Post extends Model implements FutomakiContract
 ```php
     public function fetchData() : array
     {
-        return once(fn () => DB::table($this->getRemoteTable() ?? $this->getTable())->get()->map(fn ($remoteItem) => [
+        $table = $this->getRemoteTable() ?? $this->getTable();
+        
+        // connection is already set to your remote database!
+        return once(fn () => DB::table($table)->get()->map(fn ($remoteItem) => [
             'title' => $remoteItem->title,
             'content' => $remoteItem->body,
             'excerpt' => mb_substr($remoteItem->body, 0, 100),

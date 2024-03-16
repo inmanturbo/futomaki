@@ -7,4 +7,6 @@ interface FutomakiContract
     public static function getRemoteDatabaseName(): string;
 
     public static function getRemoteDriver(): string;
+
+    public function fetchData(): array;
 }

@@ -3,6 +3,7 @@
 namespace Inmanturbo\Futomaki\Tests\Fixtures;
 
 use Envor\Datastore\Contracts\HasDatastoreContext;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -37,9 +38,31 @@ class Post extends Model implements FutomakiContract
         return 'remote_tests';
     }
 
-    public function fetchData()
+    public function fetchData(): array
     {
-        return $this->fetchDataAsIs();
+        return once(fn () => DB::table($this->getRemoteTable() ?? $this->getTable())->get()->map(fn ($remoteItem) => [
+            'title' => $remoteItem->title,
+            'content' => $remoteItem->body,
+            'excerpt' => mb_substr($remoteItem->body, 0, 100),
+            'created_at' => $remoteItem->created_at,
+            'updated_at' => $remoteItem->updated_at,
+        ])->toArray());
+    }
+
+    public function content(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => $value,
+            set: fn (string $value, array $attributes) => $this->writeBody($value, $attributes),
+        );
+    }
+
+    public function writeBody(string $value, array $attributes): array
+    {
+        $attributes['body'] = $value;
+        unset($attributes['content']);
+
+        return $attributes;
     }
 
     public function checkForRemoteUpdates(): bool

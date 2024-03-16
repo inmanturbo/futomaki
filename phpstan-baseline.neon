@@ -47,7 +47,12 @@ parameters:
 
 		-
 			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:create\\(\\)\\.$#"
-			count: 1
+			count: 2
+			path: tests/RemoteFutomakiTest.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:first\\(\\)\\.$#"
+			count: 2
 			path: tests/RemoteFutomakiTest.php
 
 		-
@@ -62,5 +67,5 @@ parameters:
 
 		-
 			message: "#^Undefined variable\\: \\$this$#"
-			count: 6
+			count: 5
 			path: tests/RemoteFutomakiTest.php

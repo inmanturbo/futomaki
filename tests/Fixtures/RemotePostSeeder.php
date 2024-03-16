@@ -13,7 +13,7 @@ class RemotePostSeeder extends Seeder
         for ($i = 0; $i < 10; $i++) {
             DB::table('remote_posts')->insert([
                 'title' => "Remote Post $i Title",
-                'content' => "Remote Post $i Content",
+                'body' => "Remote Post $i Content",
                 'created_at' => now()->subDays(10),
                 'updated_at' => now(),
             ]);

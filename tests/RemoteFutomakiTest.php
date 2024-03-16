@@ -49,7 +49,7 @@ beforeEach(function () {
         Schema::create('remote_posts', function ($table) {
             $table->id();
             $table->string('title');
-            $table->text('content');
+            $table->text('body');
             $table->timestamps();
         });
 
@@ -77,7 +77,7 @@ it('can write remote', function () {
 
 it('will cache remote writes locally', function () {
     expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(10);
-    
+
     Post::create(['title' => 'test', 'content' => 'test']);
 
     expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(11);

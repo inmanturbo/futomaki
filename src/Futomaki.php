@@ -116,7 +116,6 @@ trait Futomaki
 
     public function writeCSV()
     {
-        return;
         $rows = $this->all()->map(fn (self $item) => $item->toArray())->toArray();
 
         $rows = $this->rowsFromWriter($rows);

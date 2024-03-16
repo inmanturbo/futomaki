@@ -22,6 +22,13 @@ trait Futomaki
 {
     use Sushi;
 
+    public function forceReload()
+    {
+        $this->cacheFileNotFoundOrStale($this->sushiCachePath(), $this->cacheReferencePath(), $this);
+
+        return $this;
+    }
+
     protected function sushiCacheFileName()
     {
         return $this->sushiFilename().'.sqlite';

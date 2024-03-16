@@ -73,11 +73,12 @@ it('can write remote', function () {
     expect(MariaDB::make('remote_tests')->run(function () {
         return DB::table('remote_posts')->count();
     })->return())->toBe(11);
-
-    // expect(11)->toBe(11);
-    // expect(Post::all()->fresh()->count())->toBe(11);
 });
 
 it('will cache remote writes locally', function () {
-    $this->markTestIncomplete('This test has not been implemented yet.');
+    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(10);
+    
+    Post::create(['title' => 'test', 'content' => 'test']);
+
+    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(11);
 });

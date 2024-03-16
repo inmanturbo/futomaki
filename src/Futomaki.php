@@ -41,20 +41,21 @@ trait Futomaki
         }
 
         static::saving(function (Model $model) {
-
             if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
                 return;
             }
 
-            config([static::class.'.table' => $model->getRemoteTable() ?? $model->getTable()]);
-            $model->setTable($model->getTable());
+            $model->setTable($model->getRemoteTable());
             $model->saveQuietly();
-            match (true) {
-                method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
-                default => $model->writeCSV(),
-            };
+        });
 
-            return false;
+        static::deleting(function (Model $model) {
+            if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+                return;
+            }
+
+            $model->setTable($model->getRemoteTable());
+            $model->deleteQuietly();
         });
 
         static::saved(function (Model $model) {
@@ -75,11 +76,6 @@ trait Futomaki
     public function checkForRemoteUpdates(): bool
     {
         return false;
-    }
-
-    public function getTable(): string
-    {
-        return config(static::class.'.table', parent::getTable());
     }
 
     public function getRemoteTable(): ?string
@@ -120,6 +116,7 @@ trait Futomaki
 
     public function writeCSV()
     {
+        return;
         $rows = $this->all()->map(fn (self $item) => $item->toArray())->toArray();
 
         $rows = $this->rowsFromWriter($rows);

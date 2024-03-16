@@ -2,21 +2,21 @@
 
 namespace Inmanturbo\Futomaki;
 
-use Sushi\Sushi;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Envor\Datastore\Datastore;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Connection;
-use Envor\Datastore\Databases\MySql;
-use Illuminate\Support\Facades\File;
-use Envor\Datastore\Databases\SQLite;
+use Envor\Datastore\Contracts\HasDatastoreContext;
 use Envor\Datastore\Databases\MariaDB;
+use Envor\Datastore\Databases\MySql;
+use Envor\Datastore\Databases\SQLite;
+use Envor\Datastore\Datastore;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Spatie\SimpleExcel\SimpleExcelWriter;
-use Envor\Datastore\Contracts\HasDatastoreContext;
-use Illuminate\Database\Connectors\ConnectionFactory;
+use Sushi\Sushi;
 
 trait Futomaki
 {
@@ -36,23 +36,24 @@ trait Futomaki
     {
         $instance = (new static);
 
-        if($instance->checkForRemoteUpdates()) {
+        if ($instance->checkForRemoteUpdates()) {
             touch($instance->cacheReferencePath());
         }
 
         static::saving(function (Model $model) {
 
-            if(! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+            if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
                 return;
             }
 
-            config([static::class . '.table' => $model->getRemoteTable() ?? $model->getTable()]);
+            config([static::class.'.table' => $model->getRemoteTable() ?? $model->getTable()]);
             $model->setTable($model->getTable());
             $model->saveQuietly();
             match (true) {
                 method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
                 default => $model->writeCSV(),
             };
+
             return false;
         });
 
@@ -71,22 +72,22 @@ trait Futomaki
         });
     }
 
-    public function checkForRemoteUpdates() : bool
+    public function checkForRemoteUpdates(): bool
     {
         return false;
     }
 
-    public function getTable() : string
+    public function getTable(): string
     {
-        return config(static::class . '.table', parent::getTable());
+        return config(static::class.'.table', parent::getTable());
     }
 
-    public function getRemoteTable() : ?string
+    public function getRemoteTable(): ?string
     {
         return null;
     }
 
-    protected function fetchDataAsIs() : array
+    protected function fetchDataAsIs(): array
     {
         return once(fn () => DB::table($this->getRemoteTable() ?? $this->getTable())->get()->map(fn ($item) => (array) $item)->toArray());
     }
@@ -109,9 +110,9 @@ trait Futomaki
 
     protected function sushiCacheReferencePath()
     {
-        if(! file_exists($this->cacheReferencePath())) {
-           File::ensureDirectoryExists(dirname($this->cacheReferencePath()));
-           touch($this->cacheReferencePath());
+        if (! file_exists($this->cacheReferencePath())) {
+            File::ensureDirectoryExists(dirname($this->cacheReferencePath()));
+            touch($this->cacheReferencePath());
         }
 
         return $this->cacheReferencePath();
@@ -149,12 +150,12 @@ trait Futomaki
         app('config')->set('database.connections.'.static::class, static::$sushiConnection->getConfig());
     }
 
-    public function getSushiConfig($options = null) : array
+    public function getSushiConfig($options = null): array
     {
         return Arr::get(app('config')->get('database.connections.'.static::class, []), $options) ?? [];
     }
 
-    protected static function getMigrationConnection($database = null) : Connection
+    protected static function getMigrationConnection($database = null): Connection
     {
         return app(ConnectionFactory::class)->make($config = [
             'write' => static::localConfig($database),
@@ -162,7 +163,7 @@ trait Futomaki
         ]);
     }
 
-    protected static function getSqliteConnection($database = null) : Connection
+    protected static function getSqliteConnection($database = null): Connection
     {
         return app(ConnectionFactory::class)->make($config = [
             'read' => static::localConfig($database),
@@ -179,11 +180,12 @@ trait Futomaki
 
     protected function cacheReferencePath()
     {
-       $table = $this->getRemoteTable() ?? $this->getTable();
-       return storage_path('framework/cache/'.$table.'.csv');
+        $table = $this->getRemoteTable() ?? $this->getTable();
+
+        return storage_path('framework/cache/'.$table.'.csv');
     }
 
-    protected function rowsFromWriter(array $rows) : array
+    protected function rowsFromWriter(array $rows): array
     {
         $writer = SimpleExcelWriter::create($this->cacheReferencePath());
 
@@ -196,7 +198,7 @@ trait Futomaki
         return SimpleExcelReader::create($this->cacheReferencePath())->getRows()->toArray();
     }
 
-    protected static function localConfig($database = null) : array
+    protected static function localConfig($database = null): array
     {
         $datastoreContext = app(HasDatastoreContext::class)->datastoreContext();
 
@@ -209,7 +211,7 @@ trait Futomaki
         };
     }
 
-    protected function getRemoteData() : array
+    protected function getRemoteData(): array
     {
         return match (true) {
             method_exists(static::class, 'fetchData') => static::getRemote()->run(fn () => once(function () {
@@ -219,13 +221,13 @@ trait Futomaki
         };
     }
 
-    protected static function remoteConfig($database = null) : array
+    protected static function remoteConfig($database = null): array
     {
         return static::getRemote()->config;
     }
 
-    protected static function getRemote() : Datastore
-    { 
+    protected static function getRemote(): Datastore
+    {
         $database = method_exists(static::class, 'getRemoteDatabaseName') ? static::getRemoteDatabaseName() : null;
         $driver = method_exists(static::class, 'getRemoteDriver') ? static::getRemoteDriver() : null;
 
@@ -235,7 +237,7 @@ trait Futomaki
         };
     }
 
-    protected static function getRemoteDatastore(string $database, string $driver) : Datastore
+    protected static function getRemoteDatastore(string $database, string $driver): Datastore
     {
         return match ($driver) {
             'mariadb' => MariaDB::make($database),

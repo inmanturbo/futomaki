@@ -71,7 +71,7 @@ it('can write remote', function () {
     $post = Post::create(['title' => 'test', 'content' => 'test']);
 
     expect(MariaDB::make('remote_tests')->run(function () {
-       return DB::table('remote_posts')->count();
+        return DB::table('remote_posts')->count();
     })->return())->toBe(11);
 
     // expect(11)->toBe(11);

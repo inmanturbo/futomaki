@@ -4,6 +4,6 @@ namespace Inmanturbo\Futomaki;
 
 interface FutomakiContract
 {
-    public function getRemoteDatabaseName();
-    public function getRemoteDriver();
+    public static function getRemoteDatabaseName() : string;
+    public static function getRemoteDriver() : string;
 }

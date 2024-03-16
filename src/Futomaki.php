@@ -36,9 +36,9 @@ trait Futomaki
     {
         $instance = (new static);
 
-        match($instance->checkForRemoteUpdates()) {
-            true => touch($instance->cacheReferencePath()),
-        };
+        if($instance->checkForRemoteUpdates()) {
+            touch($instance->cacheReferencePath());
+        }
 
         static::saving(function (Model $model) {
 

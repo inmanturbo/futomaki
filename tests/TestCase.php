@@ -2,6 +2,8 @@
 
 namespace Inmanturbo\Futomaki\Tests;
 
+use Envor\Datastore\DatastoreServiceProvider;
+use Envor\SchemaMacros\SchemaMacrosServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Inmanturbo\Futomaki\FutomakiServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -20,6 +22,8 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
+            SchemaMacrosServiceProvider::class,
+            DatastoreServiceProvider::class,
             FutomakiServiceProvider::class,
         ];
     }

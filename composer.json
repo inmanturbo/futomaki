@@ -37,8 +37,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Inmanturbo\\Futomaki\\": "src/",
-            "Inmanturbo\\Futomaki\\Database\\Factories\\": "database/factories/"
+            "Inmanturbo\\Futomaki\\": "src/"
         }
     },
     "autoload-dev": {

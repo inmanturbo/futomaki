@@ -4,3 +4,63 @@ parameters:
 			message: "#^Call to an undefined method Pest\\\\PendingCalls\\\\TestCall\\:\\:expect\\(\\)\\.$#"
 			count: 1
 			path: tests/ArchTest.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:cacheReferencePath\\(\\)\\.$#"
+			count: 2
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:getRemoteTable\\(\\)\\.$#"
+			count: 6
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:writeCSV\\(\\)\\.$#"
+			count: 2
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
+			count: 1
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Match arm is unreachable because previous comparison is always true\\.$#"
+			count: 1
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			count: 2
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/Post.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:count\\(\\)\\.$#"
+			count: 1
+			path: tests/RemoteFutomakiTest.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:create\\(\\)\\.$#"
+			count: 1
+			path: tests/RemoteFutomakiTest.php
+
+		-
+			message: "#^Comparison operation \"\\<\" between 0 and 50 is always true\\.$#"
+			count: 1
+			path: tests/RemoteFutomakiTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$seconds of function sleep expects int, float given\\.$#"
+			count: 1
+			path: tests/RemoteFutomakiTest.php
+
+		-
+			message: "#^Undefined variable\\: \\$this$#"
+			count: 6
+			path: tests/RemoteFutomakiTest.php

@@ -186,7 +186,7 @@ trait Futomaki
     {
         return app(ConnectionFactory::class)->make($config = [
             'write' => static::localConfig($database),
-            'read' => static::remoteConfig('refresh_test'),
+            'read' => static::remoteConfig(),
         ]);
     }
 
@@ -194,7 +194,7 @@ trait Futomaki
     {
         return app(ConnectionFactory::class)->make($config = [
             'read' => static::localConfig($database),
-            'write' => static::remoteConfig('refresh_test'),
+            'write' => static::remoteConfig(),
         ]);
     }
 

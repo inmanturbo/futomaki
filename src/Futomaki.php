@@ -22,6 +22,11 @@ trait Futomaki
 {
     use Sushi;
 
+    public static function writeRemote(): bool
+    {
+        return false;
+    }
+
     public function forceReload()
     {
         $this->cacheFileNotFoundOrStale($this->sushiCachePath(), $this->cacheReferencePath(), $this);
@@ -41,7 +46,7 @@ trait Futomaki
 
     public static function savingFutumaki(Model $model)
     {
-        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+        if (! static::writeRemote() || ! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
             return;
         }
 
@@ -51,7 +56,7 @@ trait Futomaki
 
     public static function deletingFutumaki(Model $model)
     {
-        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
+        if (! static::writeRemote() || ! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
             return;
         }
 
@@ -186,16 +191,19 @@ trait Futomaki
     {
         return app(ConnectionFactory::class)->make($config = [
             'write' => static::localConfig($database),
-            'read' => static::remoteConfig('refresh_test'),
+            'read' => static::remoteConfig(),
         ]);
     }
 
     protected static function getSqliteConnection($database = null): Connection
     {
-        return app(ConnectionFactory::class)->make($config = [
-            'read' => static::localConfig($database),
-            'write' => static::remoteConfig('refresh_test'),
-        ]);
+        return match(true) {
+            static::writeRemote() => app(ConnectionFactory::class)->make($config = [
+                'read' => static::localConfig($database),
+                'write' => static::remoteConfig(),
+            ]),
+            default => app(ConnectionFactory::class)->make($config = static::localConfig($database)),
+        }; 
     }
 
     protected static function setSqliteConnection($database = null)

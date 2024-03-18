@@ -23,6 +23,11 @@ class Post extends Model implements FutomakiContract
         'id' => 'id',
     ];
 
+    public static function writeRemote(): bool
+    {
+        return true;
+    }
+
     public function getRemoteTable(): ?string
     {
         return 'remote_posts';
@@ -59,9 +64,11 @@ class Post extends Model implements FutomakiContract
 
     public function writeBody(string $value, array $attributes): array
     {
-        $attributes['body'] = $value;
-        unset($attributes['content']);
-
+        if(static::writeRemote()){
+            $attributes['body'] = $value;
+            unset($attributes['content']);
+        }
+            
         return $attributes;
     }
 

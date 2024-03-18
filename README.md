@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/inmanturbo/futomaki/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/inmanturbo/futomaki/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/inmanturbo/futomaki.svg?style=flat-square)](https://packagist.org/packages/inmanturbo/futomaki)
 
-Escape your legacy project's database into a fresh green field. This is package uses [calebporzio/sushi](https://github.com/calebporzio/sushi) under the hood to fetch remote data and cache it locally in an sqlite database. Support remote writes (which bust and reload the cache) and local reads. Also supports transforming local data and a seperate table and column name(s) from remote and local.
+Escape your legacy project's database into a fresh green field. This is package uses [calebporzio/sushi](https://github.com/calebporzio/sushi) under the hood to fetch remote data and cache it locally in an sqlite database. Supports remote writes (which bust and reload the cache) and local reads. Also supports transforming local data and a seperate table and column name(s) from remote and local.
 
 ## Installation
 

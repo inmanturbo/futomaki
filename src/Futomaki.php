@@ -10,6 +10,7 @@ use Envor\Datastore\Datastore;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -67,7 +68,9 @@ trait Futomaki
     public static function savedFutumaki(Model $model)
     {
         match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            method_exists(static::class, 'getRemoteDatabaseName') 
+            && method_exists(static::class, 'getRemoteDriver') 
+            && true === static::writeRemote() => touch($model->cacheReferencePath()),
             default => $model->writeCSV(),
         };
     }
@@ -75,7 +78,9 @@ trait Futomaki
     public static function deletedFutumaki(Model $model)
     {
         match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
+            method_exists(static::class, 'getRemoteDatabaseName') 
+            && method_exists(static::class, 'getRemoteDriver') 
+            && true === static::writeRemote() => touch($model->cacheReferencePath()),
             default => $model->writeCSV(),
         };
     }
@@ -126,7 +131,13 @@ trait Futomaki
 
         return match (true) {
             count($rows) === 0 => SimpleExcelReader::create($this->cacheReferencePath())->getRows()->toArray(),
-            count($rows) > 0 => $this->rowsFromWriter($rows),
+            count($rows) > 0 && true === $this->writeRemote() => $this->rowsFromWriter($rows),
+            count($rows) > 0 => tap($rows, function ($rows) {
+                $remoteRows = $this->rowsFromWriter($rows);
+                $path = str()->of($this->cacheReferencePath())->replace('.csv', '.local.csv');
+                $local = file_exists($path) ? SimpleExcelReader::create($path)->getRows()->toArray() : [];
+                return array_merge($remoteRows, $local);
+            }),
             default => throw new \Exception('No data found'),
         };
     }
@@ -146,11 +157,27 @@ trait Futomaki
         return $this->cacheReferencePath();
     }
 
+    protected function afterMigrate(Blueprint $table)
+    {
+        $table->boolean('is_local')->default(true)->change();
+    }
+
+    protected function afterInsert(Blueprint $table)
+    {
+        $table->boolean('is_local')->default(true)->change();
+    }
+
     public function writeCSV()
     {
-        $rows = $this->all()->map(fn (self $item) => $item->toArray())->toArray();
-
-        $rows = $this->rowsFromWriter($rows);
+        $remoteRows = $this->where('is_local', false)->get()->map(fn (self $item) => $item->toArray())->toArray();
+        
+        $this->rowsFromWriter($remoteRows);
+        
+        $localRows = $this->where('is_local', true)->get()->map(fn (self $item) => $item->toArray())->toArray();
+        
+        if (count($localRows) > 0) {
+            $this->rowsFromWriter($localRows, str()->of($this->cacheReferencePath())->replace('.csv', '.local.csv'));
+        }
     }
 
     protected static function cacheFileNotFoundOrStale($cachePath, $dataPath, $instance)
@@ -161,7 +188,8 @@ trait Futomaki
 
         static::setMigrationConnection($cachePath);
 
-        static::resolveConnection()->getSchemaBuilder()->dropIfExists($instance->getTable());
+        $schema =static::resolveConnection()->getSchemaBuilder();
+        $schema->dropIfExists($instance->getTable());
 
         $instance->migrate();
 
@@ -220,9 +248,11 @@ trait Futomaki
         return storage_path('framework/cache/'.$table.'.csv');
     }
 
-    protected function rowsFromWriter(array $rows): array
+    protected function rowsFromWriter(array $rows, $path = null): array
     {
-        $writer = SimpleExcelWriter::create($this->cacheReferencePath());
+        $path = $path ?? $this->cacheReferencePath();
+
+        $writer = SimpleExcelWriter::create($path);
 
         $writer->addHeader(array_keys($rows[0]));
 
@@ -230,7 +260,7 @@ trait Futomaki
 
         $writer->close();
 
-        return SimpleExcelReader::create($this->cacheReferencePath())->getRows()->toArray();
+        return SimpleExcelReader::create($path)->getRows()->toArray();
     }
 
     protected static function localConfig($database = null): array

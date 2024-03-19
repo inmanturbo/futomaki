@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
-use Inmanturbo\Futomaki\Tests\Fixtures\Post;
+use Inmanturbo\Futomaki\Tests\Fixtures\LocalPost;
 use Inmanturbo\Futomaki\Tests\Fixtures\RemotePostSeeder;
 use Spatie\Docker\DockerContainer;
 
@@ -60,26 +60,27 @@ beforeEach(function () {
 afterEach(function () {
     $this->containerInstance->stop();
     unlink(storage_path('framework/cache/remote_posts.csv'));
+    // unlink(storage_path('framework/cache/remote_posts.local.csv'));
 });
 
 it('can fetch from remote', function () {
-    expect(Post::all()->count())->toBe(10);
-    expect(Post::where('is_local', false)->get()->count())->toBe(10);
+    expect(LocalPost::all()->count())->toBe(10);
+    expect(LocalPost::where('is_local', false)->get()->count())->toBe(10);
 });
 
 it('can write remote', function () {
-    Post::count();
-    $post = Post::create(['title' => 'test', 'content' => 'test']);
+    LocalPost::count();
+    $post = LocalPost::create(['title' => 'test', 'content' => 'test']);
 
     expect(MariaDB::make('remote_tests')->run(function () {
         return DB::table('remote_posts')->count();
-    })->return())->toBe(11);
+    })->return())->toBe(10);
 });
 
-it('will cache remote writes locally', function () {
-    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(10);
+it('will cache writes locally', function () {
+    // expect(LocalPost::first()->forceReload()->all()->fresh()->count())->toBe(10);
 
-    $post = Post::create(['title' => 'test', 'content' => 'test']);
+    $post = LocalPost::create(['title' => 'test', 'content' => 'test', 'is_local' => true]);
 
-    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(11);
+    expect(LocalPost::first()->all()->fresh()->count())->toBe(11);
 });

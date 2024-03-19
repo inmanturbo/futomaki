@@ -23,6 +23,11 @@ trait Futomaki
 {
     use Sushi;
 
+    public function getSchema()
+    {
+        return $this->schema ?? [];
+    }
+
     public static function writeRemote(): bool
     {
         return false;

@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
-use Inmanturbo\Futomaki\Tests\Fixtures\Post;
+use Inmanturbo\Futomaki\Tests\Fixtures\PostWithDecoratedWrites;
 use Inmanturbo\Futomaki\Tests\Fixtures\RemotePostSeeder;
 use Spatie\Docker\DockerContainer;
 
@@ -59,27 +59,32 @@ beforeEach(function () {
 
 afterEach(function () {
     $this->containerInstance->stop();
-    unlink(storage_path('framework/cache/remote_posts.csv'));
+    (new PostWithDecoratedWrites())->unlinkFile();
 });
 
-it('can fetch from remote', function () {
-    expect(Post::all()->count())->toBe(10);
-    expect(Post::where('is_local', false)->get()->count())->toBe(10);
-});
+it('can write to a remote database', function () {
+    $post = PostWithDecoratedWrites::create([
+        'title' => 'Test Title',
+        'body' => 'Test Body',
+    ]);
 
-it('can write remote', function () {
-    Post::count();
-    $post = Post::create(['title' => 'test', 'content' => 'test']);
+    expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->get()->count())->return())->toBe(11);
+    expect(PostWithDecoratedWrites::all()->count())->toBe(11);
 
-    expect(MariaDB::make('remote_tests')->run(function () {
-        return DB::table('remote_posts')->count();
-    })->return())->toBe(11);
-});
+    $post->update([
+        'title' => 'Updated Title',
+        'body' => 'Updated Body',
+    ]);
 
-it('will cache remote writes locally', function () {
-    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(10);
+    expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->where('id', $post->id)->first())->return()->title)->toBe('Updated Title');
+    expect(PostWithDecoratedWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
 
-    $post = Post::create(['title' => 'test', 'content' => 'test']);
+    (new PostWithDecoratedWrites())->forceReload();
 
-    expect(Post::first()->forceReload()->all()->fresh()->count())->toBe(11);
+    expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->where('id', $post->id)->first())->return()->title)->toBe('Updated Title');
+    expect(PostWithDecoratedWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
+
+    $post->delete();
+
+    expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->get()->count())->return())->toBe(10);
 });

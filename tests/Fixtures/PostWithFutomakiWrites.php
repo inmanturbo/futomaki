@@ -25,18 +25,18 @@ class PostWithFutomakiWrites extends Model
     public function getRows()
     {
         return $this->writeFactory()->run(function () {
-           return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
+            return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
         })->return();
     }
 
     protected function sushiShouldCache()
     {
-        true;
+
     }
 
     public function unlinkFile()
     {
-        if(file_exists($this->sushiCachePath())) {
+        if (file_exists($this->sushiCachePath())) {
             unlink($this->sushiCachePath());
         }
     }

@@ -36,31 +36,31 @@ trait HasFutomakiWrites
     public function writeFactory($database = null, $driver = null): ?Datastore
     {
         $database = match (true) {
-            null === $database && method_exists($this, 'getWriteDatabaseName') => $this->getWriteDatabaseName(),
-            null === $database && property_exists($this, 'writeDatabase') => $this->writeDatabase,
+            $database === null && method_exists($this, 'getWriteDatabaseName') => $this->getWriteDatabaseName(),
+            $database === null && property_exists($this, 'writeDatabase') => $this->writeDatabase,
             default => $database,
         };
 
         $driver = match (true) {
-            null === $driver && method_exists($this, 'getWriteDriver') => $this->getWriteDriver(),
-            null === $driver && property_exists($this, 'writeDriver') => $this->writeDriver,
+            $driver === null && method_exists($this, 'getWriteDriver') => $this->getWriteDriver(),
+            $driver === null && property_exists($this, 'writeDriver') => $this->writeDriver,
             default => $driver,
         };
 
         return match (true) {
-            null === $database || null === $driver => null,
+            $database === null || $driver === null => null,
             default => $this->newDatastore($database, $driver),
         };
     }
-    
+
     public function futomakiSaving()
     {
-        if(false === $this?->shouldDecorateWrites) {
+        if ($this?->shouldDecorateWrites === false) {
             return;
         }
 
-        if($datastore = $this->writeFactory()) {
-            $datastore->run(function () use ($datastore) {
+        if ($datastore = $this->writeFactory()) {
+            $datastore->run(function () {
                 $writeTable = match (true) {
                     method_exists($this, 'getWriteTable') => $this->getWriteTable() ?? $this->getTable(),
                     property_exists($this, 'writeTable') => $this->writeTable ?? $this->getTable(),
@@ -73,11 +73,11 @@ trait HasFutomakiWrites
 
     public function futomakiDeleting()
     {
-        if(false === $this?->shouldDecorateWrites) {
+        if ($this?->shouldDecorateWrites === false) {
             return;
         }
 
-        if($datastore = $this->writeFactory()) {
+        if ($datastore = $this->writeFactory()) {
             $datastore->run(function () {
                 $writeTable = match (true) {
                     method_exists($this, 'getWriteTable') => $this->getWriteTable() ?? $this->getTable(),

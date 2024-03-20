@@ -9,8 +9,8 @@ use Inmanturbo\Futomaki\HasFutomakiWrites;
 
 class PostWithFutomakiWritesAndCSV extends Model
 {
-    use HasFutomakiWrites;
     use HasCSV;
+    use HasFutomakiWrites;
 
     protected $schema = [
         'id' => 'id',
@@ -31,18 +31,18 @@ class PostWithFutomakiWritesAndCSV extends Model
     public function getCSVRows()
     {
         return $this->writeFactory()->run(function () {
-           return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
+            return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
         })->return();
     }
 
     protected function sushiShouldCache()
     {
-        true;
+
     }
 
     public function unlinkFile()
     {
-        if(file_exists($this->sushiCachePath())) {
+        if (file_exists($this->sushiCachePath())) {
             unlink($this->sushiCachePath());
         }
     }

@@ -9,8 +9,8 @@ use Sushi\Sushi;
 
 trait Futomaki
 {
-    use Sushi;
     use HasDatastoreFactory;
+    use Sushi;
 
     public function getRows()
     {
@@ -28,12 +28,12 @@ trait Futomaki
 
     protected static function cacheFileNotFoundOrStale($cachePath, $dataPath, $instance)
     {
-        if(! file_exists($cachePath)) {
+        if (! file_exists($cachePath)) {
             file_put_contents($cachePath, '');
         }
 
         static::setSqliteConnection($cachePath);
-        
+
         $instance->migrate();
 
         touch($cachePath, filemtime($dataPath));
@@ -93,7 +93,7 @@ trait Futomaki
     {
         $datastoreContext = app(HasDatastoreContext::class)->datastoreContext();
 
-        if(isset($datastoreContext)) {
+        if (isset($datastoreContext)) {
             return $datastoreContext->database();
         }
 

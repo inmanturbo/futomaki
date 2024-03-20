@@ -9,8 +9,8 @@ use Inmanturbo\Futomaki\HasFutomakiWrites;
 
 class PostWithRemoteReadCSVAndLocalWrites extends Model
 {
-    use HasFutomakiWrites;
     use HasCSV;
+    use HasFutomakiWrites;
 
     protected $schema = [
         'id' => 'id',
@@ -33,15 +33,15 @@ class PostWithRemoteReadCSVAndLocalWrites extends Model
     public function getCSVRows()
     {
         $remoteRows = $this->writeFactory()->run(function () {
-           return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
+            return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
         })->return();
 
         $remoteIds = array_column($remoteRows, 'id');
 
-        if(!file_exists($this->sushiCachePath())) {
+        if (! file_exists($this->sushiCachePath())) {
             return $remoteRows;
         }
-        
+
         $localRows = $this->whereNotIn('id', $remoteIds)->get()->map(fn ($localItem) => $localItem->toArray())->toArray();
 
         return array_merge($remoteRows, $localRows);
@@ -49,12 +49,12 @@ class PostWithRemoteReadCSVAndLocalWrites extends Model
 
     protected function sushiShouldCache()
     {
-        true;
+
     }
 
     public function unlinkFile()
     {
-        if(file_exists($this->sushiCachePath())) {
+        if (file_exists($this->sushiCachePath())) {
             unlink($this->sushiCachePath());
         }
     }

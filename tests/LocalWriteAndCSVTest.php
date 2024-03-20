@@ -2,7 +2,6 @@
 
 use Envor\Datastore\Databases\MariaDB;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
 use Inmanturbo\Futomaki\Tests\Fixtures\PostWithRemoteReadCSVAndLocalWrites;

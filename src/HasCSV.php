@@ -6,7 +6,8 @@ use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
-trait HasCSV {
+trait HasCSV
+{
     use Futomaki;
 
     protected $maxFiles = 3;
@@ -25,6 +26,7 @@ trait HasCSV {
     public function getRows()
     {
         $this->initCSV();
+
         return SimpleExcelReader::create($this->CSVPath())->getRows()->toArray();
     }
 
@@ -34,14 +36,14 @@ trait HasCSV {
         $files = array_combine($files, array_map('filemtime', $files));
         arsort($files);
         $files = array_slice($files, $maxFiles);
-        foreach($files as $file => $time) {
+        foreach ($files as $file => $time) {
             unlink($file);
         }
     }
 
     public function initCSV()
     {
-        if(! file_exists($this->CSVPath())) {
+        if (! file_exists($this->CSVPath())) {
             $rows = $this->getCSVRows();
             File::ensureDirectoryExists($this->CSVDirectory());
             touch($this->CSVPath());
@@ -83,7 +85,7 @@ trait HasCSV {
 
     public function deleteCSV()
     {
-        if(file_exists($this->CSVPath())) {
+        if (file_exists($this->CSVPath())) {
             unlink($this->CSVPath());
         }
     }
@@ -96,7 +98,7 @@ trait HasCSV {
 
     public function backupCSV()
     {
-        if(!file_exists($this->CSVPath())) {
+        if (! file_exists($this->CSVPath())) {
             $this->initCSV();
         }
         copy($this->CSVPath(), $this->CSVPath().'.'.now()->format('Y-m-d-H-i-s'));
@@ -106,7 +108,7 @@ trait HasCSV {
     {
         $rows = $this->get()->map(fn (self $item) => $item->getAttributes())->toArray();
 
-        if( count($rows) > 0) {
+        if (count($rows) > 0) {
             $this->backupCSV();
             $this->deleteCSV();
             touch($this->CSVPath());

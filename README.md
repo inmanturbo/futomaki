@@ -163,7 +163,6 @@ class PostWithFutomakiWrites extends Model
 
     public function futomakiDeleting()
     {
-
         DB::connection('remote_posts')
             ->table('posts')
             ->where($this->getKeyName(), $this->getKey())

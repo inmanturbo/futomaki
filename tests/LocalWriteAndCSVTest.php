@@ -2,6 +2,7 @@
 
 use Envor\Datastore\Databases\MariaDB;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
 use Inmanturbo\Futomaki\Tests\Fixtures\PostWithRemoteReadCSVAndLocalWrites;
@@ -63,9 +64,10 @@ afterEach(function () {
 });
 
 it('will cache writes locally', function () {
-    // expect(LocalPost::first()->forceReload()->all()->fresh()->count())->toBe(10);
 
     $post = PostWithRemoteReadCSVAndLocalWrites::create(['title' => 'test', 'body' => 'test']);
+
+    expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->get()->count())->return())->toBe(10);
 
     expect(PostWithRemoteReadCSVAndLocalWrites::first()->all()->fresh()->count())->toBe(11);
 });

@@ -6,66 +6,236 @@ parameters:
 			path: tests/ArchTest.php
 
 		-
-			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:cacheReferencePath\\(\\)\\.$#"
-			count: 2
-			path: tests/Fixtures/Post.php
-
-		-
-			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:getRemoteTable\\(\\)\\.$#"
-			count: 6
-			path: tests/Fixtures/Post.php
-
-		-
-			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:writeCSV\\(\\)\\.$#"
-			count: 2
-			path: tests/Fixtures/Post.php
-
-		-
-			message: "#^Comparison operation \"\\>\" between int\\<1, max\\> and 0 is always true\\.$#"
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithCSV\\:\\:create\\(\\)\\.$#"
 			count: 1
-			path: tests/Fixtures/Post.php
+			path: tests/CSVTest.php
 
 		-
-			message: "#^Match arm is unreachable because previous comparison is always true\\.$#"
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithCSV\\:\\:get\\(\\)\\.$#"
 			count: 1
-			path: tests/Fixtures/Post.php
+			path: tests/Fixtures/PostWithCSV.php
 
 		-
-			message: "#^Unreachable statement \\- code above always terminates\\.$#"
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithCSV\\:\\:insert\\(\\)\\.$#"
 			count: 1
-			path: tests/Fixtures/Post.php
+			path: tests/Fixtures/PostWithCSV.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithCSV.php
 
 		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithCSV.php
+
+		-
+			message: "#^Access to an undefined property Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\:\\:\\$shouldDecorateWrites\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Anonymous function has an unused use \\$datastore\\.$#"
 			count: 1
-			path: tests/Fixtures/Post.php
+			path: tests/Fixtures/PostWithFutomakiWrites.php
 
 		-
-			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:count\\(\\)\\.$#"
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiDeleting\\(\\)\\.$#"
 			count: 1
-			path: tests/RemoteFutomakiTest.php
+			path: tests/Fixtures/PostWithFutomakiWrites.php
 
 		-
-			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:create\\(\\)\\.$#"
-			count: 2
-			path: tests/RemoteFutomakiTest.php
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiSaving\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWrites.php
 
 		-
-			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\Post\\:\\:first\\(\\)\\.$#"
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\:\\:withDecoratedWrites\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\:\\:insert\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Expression \"true\" on a separate line does not do anything\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Using nullsafe property access on non\\-nullable type \\$this\\(Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\)\\. Use \\-\\> instead\\.$#"
 			count: 2
-			path: tests/RemoteFutomakiTest.php
+			path: tests/Fixtures/PostWithFutomakiWrites.php
+
+		-
+			message: "#^Access to an undefined property Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWritesAndCSV\\:\\:\\$shouldDecorateWrites\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Anonymous function has an unused use \\$datastore\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiDeleting\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiSaving\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWritesAndCSV\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWritesAndCSV\\:\\:withDecoratedWrites\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWritesAndCSV\\:\\:insert\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Expression \"true\" on a separate line does not do anything\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Using nullsafe property access on non\\-nullable type \\$this\\(Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWritesAndCSV\\)\\. Use \\-\\> instead\\.$#"
+			count: 2
+			path: tests/Fixtures/PostWithFutomakiWritesAndCSV.php
+
+		-
+			message: "#^Anonymous function has an unused use \\$datastore\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiDeleting\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:futomakiSaving\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:get\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:whereNotIn\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:withDecoratedWrites\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:insert\\(\\)\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Expression \"true\" on a separate line does not do anything\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 3
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Using nullsafe property access on non\\-nullable type \\$this\\(Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\)\\. Use \\-\\> instead\\.$#"
+			count: 2
+			path: tests/Fixtures/PostWithRemoteReadCSVAndLocalWrites.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\:\\:create\\(\\)\\.$#"
+			count: 1
+			path: tests/FutomakiWriteTest.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithFutomakiWrites\\:\\:where\\(\\)\\.$#"
+			count: 2
+			path: tests/FutomakiWriteTest.php
 
 		-
 			message: "#^Comparison operation \"\\<\" between 0 and 50 is always true\\.$#"
 			count: 1
-			path: tests/RemoteFutomakiTest.php
+			path: tests/FutomakiWriteTest.php
 
 		-
 			message: "#^Parameter \\#1 \\$seconds of function sleep expects int, float given\\.$#"
 			count: 1
-			path: tests/RemoteFutomakiTest.php
+			path: tests/FutomakiWriteTest.php
 
 		-
 			message: "#^Undefined variable\\: \\$this$#"
 			count: 5
-			path: tests/RemoteFutomakiTest.php
+			path: tests/FutomakiWriteTest.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:create\\(\\)\\.$#"
+			count: 1
+			path: tests/LocalWriteAndCSVTest.php
+
+		-
+			message: "#^Call to an undefined static method Inmanturbo\\\\Futomaki\\\\Tests\\\\Fixtures\\\\PostWithRemoteReadCSVAndLocalWrites\\:\\:first\\(\\)\\.$#"
+			count: 1
+			path: tests/LocalWriteAndCSVTest.php
+
+		-
+			message: "#^Comparison operation \"\\<\" between 0 and 50 is always true\\.$#"
+			count: 1
+			path: tests/LocalWriteAndCSVTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$seconds of function sleep expects int, float given\\.$#"
+			count: 1
+			path: tests/LocalWriteAndCSVTest.php
+
+		-
+			message: "#^Undefined variable\\: \\$this$#"
+			count: 5
+			path: tests/LocalWriteAndCSVTest.php

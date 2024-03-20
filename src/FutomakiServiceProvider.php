@@ -2,7 +2,6 @@
 
 namespace Inmanturbo\Futomaki;
 
-use Inmanturbo\Futomaki\Commands\FutomakiCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -16,7 +15,6 @@ class FutomakiServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('futomaki')
-            ->hasCommand(FutomakiCommand::class);
+            ->name('futomaki');
     }
 }

@@ -41,12 +41,12 @@ trait HasCsv
         }
     }
 
-    public function initCSV()
+    public function initCsv()
     {
         if (! file_exists($this->csvPath())) {
             $rows = $this->getCsvRows();
             File::ensureDirectoryExists($this->csvDirectory());
-            touch($this->CSVPath());
+            touch($this->csvPath());
             $writer = SimpleExcelWriter::create($this->csvPath());
             $writer->addHeader(array_keys($rows[0]));
             $writer->addRows($rows);
@@ -62,7 +62,7 @@ trait HasCsv
 
     protected function sushiCacheReferencePath()
     {
-        return $this->CsvPath();
+        return $this->csvPath();
     }
 
     public function csvPath()

@@ -59,7 +59,7 @@ beforeEach(function () {
 afterEach(function () {
     $this->containerInstance->stop();
     ($post = new PostWithRemoteReadCSVAndLocalWrites())->unlinkFile();
-    $post->cleanupCSVs(0);
+    $post->cleanupCsvFiles(0);
 });
 
 it('will cache writes locally', function () {

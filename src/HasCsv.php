@@ -6,33 +6,33 @@ use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Spatie\SimpleExcel\SimpleExcelWriter;
 
-trait HasCSV
+trait HasCsv
 {
     use Futomaki;
 
     protected $maxFiles = 3;
 
-    public static function bootHasCSV()
+    public static function bootHasCsv()
     {
         static::saved(function (self $model) {
-            $model->writeCSV();
+            $model->writeCsv();
         });
 
         static::deleted(function (self $model) {
-            $model->writeCSV();
+            $model->writeCsv();
         });
     }
 
     public function getRows()
     {
-        $this->initCSV();
+        $this->initCsv();
 
         return SimpleExcelReader::create($this->CSVPath())->getRows()->toArray();
     }
 
-    public function cleanupCSVs($maxFiles = 3)
+    public function cleanupCsvFiles($maxFiles = 3)
     {
-        $files = glob($this->CSVDirectory().'/*');
+        $files = glob($this->csvDirectory().'/*');
         $files = array_combine($files, array_map('filemtime', $files));
         arsort($files);
         $files = array_slice($files, $maxFiles);
@@ -43,11 +43,11 @@ trait HasCSV
 
     public function initCSV()
     {
-        if (! file_exists($this->CSVPath())) {
-            $rows = $this->getCSVRows();
-            File::ensureDirectoryExists($this->CSVDirectory());
+        if (! file_exists($this->csvPath())) {
+            $rows = $this->getCsvRows();
+            File::ensureDirectoryExists($this->csvDirectory());
             touch($this->CSVPath());
-            $writer = SimpleExcelWriter::create($this->CSVPath());
+            $writer = SimpleExcelWriter::create($this->csvPath());
             $writer->addHeader(array_keys($rows[0]));
             $writer->addRows($rows);
 
@@ -55,68 +55,68 @@ trait HasCSV
         }
     }
 
-    protected function getCSVRows()
+    protected function getCsvRows()
     {
         return $this->rows;
     }
 
     protected function sushiCacheReferencePath()
     {
-        return $this->CSVPath();
+        return $this->CsvPath();
     }
 
-    public function CSVPath()
+    public function csvPath()
     {
         return implode(DIRECTORY_SEPARATOR, [
-            $this->CSVDirectory(),
-            $this->CSVFileName(),
+            $this->csvDirectory(),
+            $this->csvFileName(),
         ]);
     }
 
-    protected function CSVFileName()
+    protected function csvFileName()
     {
         return (string) str()->of($this->sushiCacheFileName())->beforeLast('.').'.csv';
     }
 
-    protected function CSVDirectory()
+    protected function csvDirectory()
     {
         return $this->sushiCacheDirectory();
     }
 
-    public function deleteCSV()
+    public function deleteCsv()
     {
-        if (file_exists($this->CSVPath())) {
-            unlink($this->CSVPath());
+        if (file_exists($this->csvPath())) {
+            unlink($this->csvPath());
         }
     }
 
     public function forceReload()
     {
-        $this->deleteCSV();
+        $this->deleteCsv();
         $this->refresh();
     }
 
-    public function backupCSV()
+    public function backupCsv()
     {
-        if (! file_exists($this->CSVPath())) {
-            $this->initCSV();
+        if (! file_exists($this->csvPath())) {
+            $this->initCsv();
         }
-        copy($this->CSVPath(), $this->CSVPath().'.'.now()->format('Y-m-d-H-i-s'));
+        copy($this->csvPath(), $this->csvPath().'.'.now()->format('Y-m-d-H-i-s'));
     }
 
-    public function writeCSV()
+    public function writeCsv()
     {
         $rows = $this->get()->map(fn (self $item) => $item->getAttributes())->toArray();
 
         if (count($rows) > 0) {
-            $this->backupCSV();
-            $this->deleteCSV();
-            touch($this->CSVPath());
-            $writer = SimpleExcelWriter::create($this->CSVPath());
+            $this->backupCsv();
+            $this->deleteCsv();
+            touch($this->CsvPath());
+            $writer = SimpleExcelWriter::create($this->csvPath());
             $writer->addHeader(array_keys($rows[0]));
             $writer->addRows($rows);
             $writer->close();
-            $this->cleanupCSVs($this->maxFiles);
+            $this->cleanupCsvFiles($this->maxFiles);
         }
     }
 }

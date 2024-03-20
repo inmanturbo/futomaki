@@ -3,11 +3,11 @@
 namespace Inmanturbo\Futomaki\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
-use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasCsv;
 
 class PostWithCSV extends Model
 {
-    use HasCSV;
+    use HasCsv;
 
     protected $shouldDecorateWrites = true;
 

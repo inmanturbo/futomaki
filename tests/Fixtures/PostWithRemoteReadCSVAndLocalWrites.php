@@ -4,12 +4,12 @@ namespace Inmanturbo\Futomaki\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasCsv;
 use Inmanturbo\Futomaki\HasFutomakiWrites;
 
 class PostWithRemoteReadCSVAndLocalWrites extends Model
 {
-    use HasCSV;
+    use HasCsv;
     use HasFutomakiWrites;
 
     protected $schema = [
@@ -30,7 +30,7 @@ class PostWithRemoteReadCSVAndLocalWrites extends Model
 
     public $guarded = [];
 
-    public function getCSVRows()
+    public function getCsvRows()
     {
         $remoteRows = $this->writeFactory()->run(function () {
             return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();

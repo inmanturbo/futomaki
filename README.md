@@ -23,11 +23,11 @@ composer require inmanturbo/futomaki
 <?php
 
 use Illuminate\Database\Eloquent\Model;
-use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasCsv;
 
 class Post extends Model
 {
-    use HasCSV;
+    use HasCsv;
 
     protected $schema = [
         'id' => 'id',
@@ -35,27 +35,27 @@ class Post extends Model
         'content' => 'text',
     ];
 
-    protected function CSVFileName()
+    protected function csvFileName()
     {
         return 'posts.csv';
     }
 
-    protected function CSVDirectory()
+    protected function csvDirectory()
     {
         return storage_path('csv');
     }
 }
 ```
 
-HasCSV uses sushi (array driver) under the hood, and supports defining a $rows property as well. A csv file will automatically be created using the defined $rows.
+HasCsv uses sushi (array driver) under the hood, and supports defining a $rows property as well. A csv file will automatically be created using the defined $rows.
 
 ```php
 use Illuminate\Database\Eloquent\Model;
-use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasCsv;
 
-class PostWithCSV extends Model
+class PostWithCsv extends Model
 {
-    use HasCSV;
+    use HasCsv;
 
     protected $shouldDecorateWrites = true;
 
@@ -82,17 +82,17 @@ class PostWithCSV extends Model
 }
 ```
 
-### Using ->getCSVRows()
+### Using ->getCsvRows()
 
-Implementing your own `getCSVRows()` method is supported as well.
+Implementing your own `getCsvRows()` method is supported as well.
 
 ```php
 use Illuminate\Database\Eloquent\Model;
-use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasCsv;
 
-class PostWithCSV extends Model
+class PostWithCsv extends Model
 {
-    use HasCSV;
+    use HasCsv;
 
     protected $guarded = [];
 
@@ -102,7 +102,7 @@ class PostWithCSV extends Model
         'content' => 'text',
     ];
 
-    public function getCSVRows()
+    public function getCsvRows()
     {
        return [
             ['id' => 1,'title' => 'Post 1', 'content' => 'Content 1'],

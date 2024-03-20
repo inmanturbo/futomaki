@@ -6,13 +6,11 @@ use Envor\Datastore\Datastore;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-trait HasDecoratedWrites
+trait HasFutomakiWrites
 {
     use HasDatastoreFactory;
 
-    protected $shouldDecorateWrites = true;
-
-    public function withDecoratedWrites(bool $shouldDecorateWrites = true): static
+    public function withFutomakiWrites(bool $shouldDecorateWrites = true): static
     {
         $this->shouldDecorateWrites = $shouldDecorateWrites;
 
@@ -24,14 +22,14 @@ trait HasDecoratedWrites
         return $this->withDecoratedWrites(false);
     }
 
-    public static function bootHasDecoratedWrites()
+    public static function bootHasFutomakiWrites()
     {
         static::saving(function (Model $model) {
-            $model->decoratedSaving();
+            $model->futomakiSaving();
         });
 
         static::deleting(function (Model $model) {
-            $model->decoratedDeleting();
+            $model->futomakiDeleting();
         });
     }
 
@@ -55,9 +53,9 @@ trait HasDecoratedWrites
         };
     }
     
-    public function decoratedSaving()
+    public function futomakiSaving()
     {
-        if(!$this->shouldDecorateWrites) {
+        if(false === $this?->shouldDecorateWrites) {
             return;
         }
 
@@ -73,9 +71,9 @@ trait HasDecoratedWrites
         }
     }
 
-    public function decoratedDeleting()
+    public function futomakiDeleting()
     {
-        if(!$this->shouldDecorateWrites) {
+        if(false === $this?->shouldDecorateWrites) {
             return;
         }
 

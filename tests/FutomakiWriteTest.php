@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
-use Inmanturbo\Futomaki\Tests\Fixtures\PostWithDecoratedWrites;
+use Inmanturbo\Futomaki\Tests\Fixtures\PostWithFutomakiWrites;
 use Inmanturbo\Futomaki\Tests\Fixtures\RemotePostSeeder;
 use Spatie\Docker\DockerContainer;
 
@@ -59,17 +59,17 @@ beforeEach(function () {
 
 afterEach(function () {
     $this->containerInstance->stop();
-    (new PostWithDecoratedWrites())->unlinkFile();
+    (new PostWithFutomakiWrites())->unlinkFile();
 });
 
 it('can write to a remote database', function () {
-    $post = PostWithDecoratedWrites::create([
+    $post = PostWithFutomakiWrites::create([
         'title' => 'Test Title',
         'body' => 'Test Body',
     ]);
 
     expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->get()->count())->return())->toBe(11);
-    expect(PostWithDecoratedWrites::all()->count())->toBe(11);
+    expect(PostWithFutomakiWrites::all()->count())->toBe(11);
 
     $post->update([
         'title' => 'Updated Title',
@@ -77,12 +77,12 @@ it('can write to a remote database', function () {
     ]);
 
     expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->where('id', $post->id)->first())->return()->title)->toBe('Updated Title');
-    expect(PostWithDecoratedWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
+    expect(PostWithFutomakiWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
 
-    (new PostWithDecoratedWrites())->forceReload();
+    (new PostWithFutomakiWrites())->forceReload();
 
     expect($post->writeFactory()->run(fn () => DB::table('remote_posts')->where('id', $post->id)->first())->return()->title)->toBe('Updated Title');
-    expect(PostWithDecoratedWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
+    expect(PostWithFutomakiWrites::where('id', $post->id)->first()->title)->toBe('Updated Title');
 
     $post->delete();
 

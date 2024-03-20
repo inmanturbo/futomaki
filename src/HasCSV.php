@@ -2,12 +2,14 @@
 
 namespace Inmanturbo\Futomaki;
 
+use Illuminate\Support\Facades\File;
 use Spatie\SimpleExcel\SimpleExcelReader;
 use Spatie\SimpleExcel\SimpleExcelWriter;
-use Sushi\Sushi;
 
 trait HasCSV {
-    use Sushi;
+    use Futomaki;
+
+    protected $maxFiles = 3;
 
     public static function bootHasCSV()
     {
@@ -26,10 +28,22 @@ trait HasCSV {
         return SimpleExcelReader::create($this->CSVPath())->getRows()->toArray();
     }
 
+    public function cleanupCSVs($maxFiles = 3)
+    {
+        $files = glob($this->CSVDirectory().'/*');
+        $files = array_combine($files, array_map('filemtime', $files));
+        arsort($files);
+        $files = array_slice($files, $maxFiles);
+        foreach($files as $file => $time) {
+            unlink($file);
+        }
+    }
+
     public function initCSV()
     {
         if(! file_exists($this->CSVPath())) {
             $rows = $this->getCSVRows();
+            File::ensureDirectoryExists($this->CSVDirectory());
             touch($this->CSVPath());
             $writer = SimpleExcelWriter::create($this->CSVPath());
             $writer->addHeader(array_keys($rows[0]));
@@ -100,6 +114,7 @@ trait HasCSV {
             $writer->addHeader(array_keys($rows[0]));
             $writer->addRows($rows);
             $writer->close();
+            $this->cleanupCSVs($this->maxFiles);
         }
     }
 }

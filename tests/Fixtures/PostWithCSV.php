@@ -4,7 +4,6 @@ namespace Inmanturbo\Futomaki\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
 use Inmanturbo\Futomaki\HasCSV;
-use Inmanturbo\Futomaki\HasDecoratedWrites;
 
 class PostWithCSV extends Model
 {

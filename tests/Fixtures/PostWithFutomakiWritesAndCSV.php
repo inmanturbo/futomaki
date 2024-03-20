@@ -4,13 +4,19 @@ namespace Inmanturbo\Futomaki\Tests\Fixtures;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use Inmanturbo\Futomaki\HasDecoratedWrites;
-use Sushi\Sushi;
+use Inmanturbo\Futomaki\HasCSV;
+use Inmanturbo\Futomaki\HasFutomakiWrites;
 
-class PostWithDecoratedWrites extends Model
+class PostWithFutomakiWritesAndCSV extends Model
 {
-    use Sushi;
-    use HasDecoratedWrites;
+    use HasFutomakiWrites;
+    use HasCSV;
+
+    protected $schema = [
+        'id' => 'id',
+        'title' => 'string',
+        'content' => 'text',
+    ];
 
     protected $writeDatabase = 'remote_tests';
 
@@ -22,7 +28,7 @@ class PostWithDecoratedWrites extends Model
 
     public $guarded = [];
 
-    public function getRows()
+    public function getCSVRows()
     {
         return $this->writeFactory()->run(function () {
            return DB::table($this->writeTable)->get()->map(fn ($remoteItem) => (array) $remoteItem)->toArray();
@@ -44,6 +50,5 @@ class PostWithDecoratedWrites extends Model
     public function forceReload()
     {
         $this->unlinkFile();
-        $this->refresh();
     }
 }

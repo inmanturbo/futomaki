@@ -3,211 +3,61 @@
 namespace Inmanturbo\Futomaki;
 
 use Envor\Datastore\Contracts\HasDatastoreContext;
-use Envor\Datastore\Databases\MariaDB;
-use Envor\Datastore\Databases\MySql;
-use Envor\Datastore\Databases\SQLite;
-use Envor\Datastore\Datastore;
-use Illuminate\Database\Connection;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-use Spatie\SimpleExcel\SimpleExcelReader;
-use Spatie\SimpleExcel\SimpleExcelWriter;
 use Sushi\Sushi;
 
 trait Futomaki
 {
     use Sushi;
-
-    public function getSchema()
-    {
-        return $this->schema ?? [];
-    }
-
-    public static function writeRemote(): bool
-    {
-        return false;
-    }
-
-    public function forceReload()
-    {
-        $this->cacheFileNotFoundOrStale($this->sushiCachePath(), $this->cacheReferencePath(), $this);
-
-        return $this;
-    }
-
-    protected function sushiCacheFileName()
-    {
-        return $this->sushiFilename().'.sqlite';
-    }
-
-    protected function sushiFilename()
-    {
-        return config('sushi.cache-prefix', 'sushi').'-'.Str::kebab(str_replace(['/', "\00", '\\'], ' ', static::class));
-    }
-
-    public static function savingFutumaki(Model $model)
-    {
-        if (! static::writeRemote() || ! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-            return;
-        }
-
-        $model->setTable($model->getRemoteTable());
-        $model->saveQuietly();
-    }
-
-    public static function deletingFutumaki(Model $model)
-    {
-        if (! static::writeRemote() || ! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-            return;
-        }
-
-        $model->setTable($model->getRemoteTable());
-        $model->deleteQuietly();
-    }
-
-    public static function savedFutumaki(Model $model)
-    {
-        match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') 
-            && method_exists(static::class, 'getRemoteDriver') 
-            && true === static::writeRemote() => touch($model->cacheReferencePath()),
-            default => $model->writeCSV(),
-        };
-    }
-
-    public static function deletedFutumaki(Model $model)
-    {
-        match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') 
-            && method_exists(static::class, 'getRemoteDriver') 
-            && true === static::writeRemote() => touch($model->cacheReferencePath()),
-            default => $model->writeCSV(),
-        };
-    }
-
-    public static function bootFutomaki()
-    {
-        $instance = (new static);
-
-        if ($instance->checkForRemoteUpdates()) {
-            touch($instance->cacheReferencePath());
-        }
-
-        static::saving(function (Model $model) {
-            static::savingFutumaki($model);
-        });
-
-        static::deleting(function (Model $model) {
-            static::deletingFutumaki($model);
-        });
-
-        static::saved(function (Model $model) {
-            static::savedFutumaki($model);
-        });
-
-        static::deleted(function (Model $model) {
-            static::deletedFutumaki($model);
-        });
-    }
-
-    public function checkForRemoteUpdates(): bool
-    {
-        return false;
-    }
-
-    public function getRemoteTable(): ?string
-    {
-        return null;
-    }
-
-    protected function fetchDataAsIs(): array
-    {
-        return once(fn () => DB::table($this->getRemoteTable() ?? $this->getTable())->get()->map(fn ($item) => (array) $item)->toArray());
-    }
+    use HasDatastoreFactory;
 
     public function getRows()
     {
-        $rows = $this->getRemoteData();
-
-        return match (true) {
-            count($rows) === 0 => SimpleExcelReader::create($this->cacheReferencePath())->getRows()->toArray(),
-            count($rows) > 0 && true === $this->writeRemote() => $this->rowsFromWriter($rows),
-            count($rows) > 0 => tap($rows, function ($rows) {
-                $remoteRows = $this->rowsFromWriter($rows);
-                $path = str()->of($this->cacheReferencePath())->replace('.csv', '.local.csv');
-                $local = file_exists($path) ? SimpleExcelReader::create($path)->getRows()->toArray() : [];
-                return array_merge($remoteRows, $local);
-            }),
-            default => throw new \Exception('No data found'),
-        };
+        return $this->rows;
     }
 
-    protected function sushiShouldCache()
+    protected static function setSqliteConnection($database = null)
     {
-        return true;
-    }
+        $datastore = static::datastore($database);
 
-    protected function sushiCacheReferencePath()
-    {
-        if (! file_exists($this->cacheReferencePath())) {
-            File::ensureDirectoryExists(dirname($this->cacheReferencePath()));
-            touch($this->cacheReferencePath());
-        }
+        static::$sushiConnection = app(ConnectionFactory::class)->make($datastore->config);
 
-        return $this->cacheReferencePath();
-    }
-
-    protected function afterMigrate(Blueprint $table)
-    {
-        $table->boolean('is_local')->default(true)->change();
-    }
-
-    protected function afterInsert(Blueprint $table)
-    {
-        $table->boolean('is_local')->default(true)->change();
-    }
-
-    public function writeCSV()
-    {
-        $remoteRows = $this->where('is_local', false)->get()->map(fn (self $item) => $item->toArray())->toArray();
-        
-        $this->rowsFromWriter($remoteRows);
-        
-        $localRows = $this->where('is_local', true)->get()->map(fn (self $item) => $item->toArray())->toArray();
-        
-        if (count($localRows) > 0) {
-            $this->rowsFromWriter($localRows, str()->of($this->cacheReferencePath())->replace('.csv', '.local.csv'));
-        }
+        static::configureSushi();
     }
 
     protected static function cacheFileNotFoundOrStale($cachePath, $dataPath, $instance)
     {
-        if (! file_exists($cachePath)) {
+        if(! file_exists($cachePath)) {
             file_put_contents($cachePath, '');
         }
 
-        static::setMigrationConnection($cachePath);
-
-        $schema =static::resolveConnection()->getSchemaBuilder();
-        $schema->dropIfExists($instance->getTable());
-
-        $instance->migrate();
-
         static::setSqliteConnection($cachePath);
+        
+        $instance->migrate();
 
         touch($cachePath, filemtime($dataPath));
     }
 
-    protected static function setMigrationConnection($database = null)
+    public function migrate()
     {
-        static::$sushiConnection = static::getMigrationConnection($database);
+        $rows = $this->getRows();
+        $tableName = $this->getTable();
 
-        static::configureSushi();
+        $schema = static::resolveConnection()->getSchemaBuilder();
+        $schema->dropIfExists($this->getTable());
+
+        if (count($rows)) {
+            $this->createTable($tableName, $rows[0]);
+        } else {
+            $this->createTableWithNoData($tableName);
+        }
+
+        foreach (array_chunk($rows, $this->getSushiInsertChunkSize()) ?? [] as $inserts) {
+            if (! empty($inserts)) {
+                static::insert($inserts);
+            }
+        }
     }
 
     protected static function configureSushi()
@@ -220,101 +70,41 @@ trait Futomaki
         return Arr::get(app('config')->get('database.connections.'.static::class, []), $options) ?? [];
     }
 
-    protected static function getMigrationConnection($database = null): Connection
+    public function forceReload()
     {
-        return app(ConnectionFactory::class)->make($config = [
-            'write' => static::localConfig($database),
-            'read' => static::remoteConfig(),
-        ]);
+        static::cacheFileNotFoundOrStale($this->sushiCachePath(), $this->dataPath(), $this);
+
+        return $this;
     }
 
-    protected static function getSqliteConnection($database = null): Connection
+    public static function sushiDriver()
     {
-        return match(true) {
-            static::writeRemote() => app(ConnectionFactory::class)->make($config = [
-                'read' => static::localConfig($database),
-                'write' => static::remoteConfig(),
-            ]),
-            default => app(ConnectionFactory::class)->make($config = static::localConfig($database)),
-        }; 
+        return (new static)?->futomakiDriver ?? 'sqlite';
     }
 
-    protected static function setSqliteConnection($database = null)
+    public static function sushiDatabase()
     {
-        static::$sushiConnection = static::getSqliteConnection($database);
+        $instance = new static;
 
-        static::configureSushi();
+        return (new static)?->futomakiDatabase ?? $instance->getSushiSushiDatabase();
     }
 
-    protected function cacheReferencePath()
-    {
-        $table = $this->getRemoteTable() ?? $this->getTable();
-
-        return storage_path('framework/cache/'.$table.'.csv');
-    }
-
-    protected function rowsFromWriter(array $rows, $path = null): array
-    {
-        $path = $path ?? $this->cacheReferencePath();
-
-        $writer = SimpleExcelWriter::create($path);
-
-        $writer->addHeader(array_keys($rows[0]));
-
-        $writer->addRows($rows);
-
-        $writer->close();
-
-        return SimpleExcelReader::create($path)->getRows()->toArray();
-    }
-
-    protected static function localConfig($database = null): array
+    public static function datastore($database = null, $driver = null)
     {
         $datastoreContext = app(HasDatastoreContext::class)->datastoreContext();
 
-        return match (isset($datastoreContext)) {
-            true => $datastoreContext->database()->config,
-            default => [
-                'driver' => 'sqlite',
-                'database' => $database,
-            ],
-        };
+        if(isset($datastoreContext)) {
+            return $datastoreContext->database();
+        }
+
+        $database = $database ?? static::sushiDatabase();
+        $driver = $driver ?? static::sushiDriver();
+
+        return static::newDatastore($database, $driver);
     }
 
-    protected function getRemoteData(): array
+    public function getSushiSushiDatabase()
     {
-        return match (true) {
-            method_exists(static::class, 'fetchData') => static::getRemote()->run(fn () => once(function () {
-                return $this->fetchData();
-            }))->return(),
-            default => [],
-        };
-    }
-
-    protected static function remoteConfig($database = null): array
-    {
-        return static::getRemote()->config;
-    }
-
-    protected static function getRemote(): Datastore
-    {
-        $database = method_exists(static::class, 'getRemoteDatabaseName') ? static::getRemoteDatabaseName() : null;
-        $driver = method_exists(static::class, 'getRemoteDriver') ? static::getRemoteDriver() : null;
-
-        return match (true) {
-            is_string($database) && is_string($driver) => static::getRemoteDatastore($database, $driver),
-            default => app(HasDatastoreContext::class)->datastoreContext()->database(),
-        };
-    }
-
-    protected static function getRemoteDatastore(string $database, string $driver): Datastore
-    {
-        return match ($driver) {
-            'mariadb' => MariaDB::make($database),
-            'sqlite' => SQLite::make($database),
-            'mysql' => MySql::make($database),
-            '' => throw new \Exception('Driver not set'),
-            default => throw new \Exception('Unsupported driver'),
-        };
+        return $this->sushiCachePath();
     }
 }

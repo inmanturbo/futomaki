@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Schema;
-use Inmanturbo\Futomaki\Tests\Fixtures\LocalPost;
+use Inmanturbo\Futomaki\Tests\Fixtures\PostWithRemoteReadCSVAndLocalWrites;
 use Inmanturbo\Futomaki\Tests\Fixtures\RemotePostSeeder;
 use Spatie\Docker\DockerContainer;
 
@@ -59,28 +59,14 @@ beforeEach(function () {
 
 afterEach(function () {
     $this->containerInstance->stop();
-    unlink(storage_path('framework/cache/remote_posts.csv'));
-    // unlink(storage_path('framework/cache/remote_posts.local.csv'));
-});
-
-it('can fetch from remote', function () {
-    expect(LocalPost::all()->count())->toBe(10);
-    expect(LocalPost::where('is_local', false)->get()->count())->toBe(10);
-});
-
-it('can write remote', function () {
-    LocalPost::count();
-    $post = LocalPost::create(['title' => 'test', 'content' => 'test']);
-
-    expect(MariaDB::make('remote_tests')->run(function () {
-        return DB::table('remote_posts')->count();
-    })->return())->toBe(10);
+    ($post = new PostWithRemoteReadCSVAndLocalWrites())->unlinkFile();
+    $post->cleanupCSVs(0);
 });
 
 it('will cache writes locally', function () {
     // expect(LocalPost::first()->forceReload()->all()->fresh()->count())->toBe(10);
 
-    $post = LocalPost::create(['title' => 'test', 'content' => 'test', 'is_local' => true]);
+    $post = PostWithRemoteReadCSVAndLocalWrites::create(['title' => 'test', 'body' => 'test']);
 
-    expect(LocalPost::first()->all()->fresh()->count())->toBe(11);
+    expect(PostWithRemoteReadCSVAndLocalWrites::first()->all()->fresh()->count())->toBe(11);
 });

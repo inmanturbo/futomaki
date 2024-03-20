@@ -5,7 +5,7 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/inmanturbo/futomaki/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/inmanturbo/futomaki/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/inmanturbo/futomaki.svg?style=flat-square)](https://packagist.org/packages/inmanturbo/futomaki)
 
-Escape your legacy project's database into a fresh green field. This is package uses [calebporzio/sushi](https://github.com/calebporzio/sushi) under the hood to fetch remote data and cache it locally in an sqlite database. Supports remote writes (which bust and reload the cache) and local reads. Also supports transforming local data and a seperate table and column name(s) from remote and local.
+A set of features for eloquent built on top of [calebporzio/sushi](https://github.com/calebporzio/sushi).
 
 ## Installation
 
@@ -17,151 +17,159 @@ composer require inmanturbo/futomaki
 
 ## Usage
 
+### Eloquent CSV Driver
+
 ```php
 <?php
 
-namespace Inmanturbo\Futomaki\Tests\Fixtures;
-
-use Envor\Datastore\Contracts\HasDatastoreContext;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
-use Inmanturbo\Futomaki\Futomaki;
-use Inmanturbo\Futomaki\FutomakiContract;
+use Inmanturbo\Futomaki\HasCSV;
 
-class Post extends Model implements FutomakiContract
+class Post extends Model
 {
-    use Futomaki;
-    use HasFactory;
+    use HasCSV;
 
-    public $timestamps = true;
+    protected $schema = [
+        'id' => 'id',
+        'title' => 'string',
+        'content' => 'text',
+    ];
+
+    protected function CSVFileName()
+    {
+        return 'posts.csv';
+    }
+
+    protected function CSVDirectory()
+    {
+        return storage_path('csv');
+    }
+}
+```
+
+HasCSV uses sushi (array driver) under the hood, and supports defining a $rows property as well. A csv file will automatically be created using the defined $rows.
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Inmanturbo\Futomaki\HasCSV;
+
+class PostWithCSV extends Model
+{
+    use HasCSV;
+
+    protected $shouldDecorateWrites = true;
 
     protected $guarded = [];
 
     protected $schema = [
         'id' => 'id',
+        'title' => 'string',
+        'content' => 'text',
     ];
 
-    public function getRemoteTable(): ?string
-    {
-        // this method is not needed if your local and remote tables will have the same name.
-        return 'remote_posts';
-    }
+    protected $rows = [
+        [
+            'id' => 1,
+            'title' => 'Post 1',
+            'content' => 'Content 1',
+        ],
+        [
+            'id' => 2,
+            'title' => 'Post 2',
+            'content' => 'Content 2',
+        ],
+    ];
+}
+```
 
-    public static function getRemoteDriver(): string
-    {
-        // you must have a configured database connection for the driver by the same name as the driver
-        return 'mariadb';
-    }
+### Using ->getCSVRows()
 
-    public static function getRemoteDatabaseName(): string
-    {
-        return 'remote_tests';
-    }
+Implementing your own `getCSVRows()` method is supported as well.
 
-    public function fetchData() : array
-    {
-        // The fetchDataAsIs() implementation is provided by Futomaki, It assumes the local table will be identical to the remote.
-        // this function will be run with the remote connection as the default connection!
-        return $this->fetchDataAsIs();
-    }
+```php
+use Illuminate\Database\Eloquent\Model;
+use Inmanturbo\Futomaki\HasCSV;
 
-    public function checkForRemoteUpdates(): bool
+class PostWithCSV extends Model
+{
+    use HasCSV;
+
+    protected $guarded = [];
+
+    protected $schema = [
+        'id' => 'id',
+        'title' => 'string',
+        'content' => 'text',
+    ];
+
+    public function getCSVRows()
     {
-        // runs whenever the model boots. You can check some condition(s) here and return true to bust the cache.
-        return false;
+       return [
+            ['id' => 1,'title' => 'Post 1', 'content' => 'Content 1'],
+            ['id' => 2,'title' => 'Post 2','content' => 'Content 2'],
+        ];
     }
 }
 ```
 
-### Advanced usage example
+### HasFutumakiWrites
+
+HasFutomakiWrites is a trait which leverages eloquent's `saving()` and `deleting()` hooks to support writing sushi's changes out to another database, or api, etc.
+Example Below.
 
 ```php
-    public function fetchData() : array
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Inmanturbo\Futomaki\Futomaki;
+use Inmanturbo\Futomaki\HasFutomakiWrites;
+
+class PostWithFutomakiWrites extends Model
+{
+    use Futomaki;
+    use HasFutomakiWrites;
+
+    public $timestamps = true;
+
+    public $guarded = [];
+
+    protected $schema = [
+        'id' => 'id',
+        'title' => 'string',
+        'content' => 'text',
+    ];
+
+    public function getRows()
     {
-        $table = $this->getRemoteTable() ?? $this->getTable();
-        
-        // connection is already set to your remote database!
-        return once(fn () => DB::table($table)->get()->map(fn ($remoteItem) => [
+        return DB::connection('remote_posts')->table('posts')->get()->map(fn ($remoteItem) => [
+            'id' => $remoteItem->id,
             'title' => $remoteItem->title,
             'content' => $remoteItem->body,
-            'excerpt' => mb_substr($remoteItem->body, 0, 100),
-            'created_at' => $remoteItem->created_at,
-            'updated_at' => $remoteItem->updated_at,
-        ])->toArray());
+        ])->toArray();
     }
-```
 
-### A note on writing to remote
-
-Remember to use your remote columns.
-
-```php
-Post::create([
-    'title' => 'A Title',
-    'body' => 'this is the content',
-]);
-```
-
-Or implement a mutator
-
-```php
-    public function content(): Attribute
+    public function futomakiSaving()
     {
-        return Attribute::make(
-            get: fn (string $value) => $value,
-            set: fn (string $value, array $attributes) => $this->writeBody($value, $attributes),
-        );
+        $values = [
+            'id' => $this->id,
+            'title' => $this->title,
+            'body' => $this->content,
+        ];
+
+        DB::connection('remote_posts')->transaction(function () {
+            DB::connection('remote_posts')->table('posts')->upsert($values, $this->getKeyName());
+        });
     }
 
-    public function writeBody(string $value, array $attributes): array
+    public function futomakiDeleting()
     {
-        $attributes['body'] = $value;
-        unset($attributes['content']);
-        return $attributes;
+
+        DB::connection('remote_posts')
+            ->table('posts')
+            ->where($this->getKeyName(), $this->getKey())
+            ->delete();
     }
-```
-
-## Lifecycle
-
-Here are the following lifecycle methods and their defaults, you may overwrite any one of them to change the way Futomaki saves and deletes to the remote connection.
-
-```php
-    public static function savingFutumaki(Model $model)
-    {
-        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-            return;
-        }
-
-        $model->setTable($model->getRemoteTable());
-        $model->saveQuietly();
-    }
-
-    public static function deletingFutumaki(Model $model)
-    {
-        if (! $model->getRemoteTable() || $model->getTable() === $model->getRemoteTable()) {
-            return;
-        }
-
-        $model->setTable($model->getRemoteTable());
-        $model->deleteQuietly();
-    }
-
-    public static function savedFutumaki(Model $model)
-    {
-        match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
-            default => $model->writeCSV(),
-        };
-    }
-
-    public static function deletedFutumaki(Model $model)
-    {
-        match (true) {
-            method_exists(static::class, 'getRemoteDatabaseName') && method_exists(static::class, 'getRemoteDriver') => touch($model->cacheReferencePath()),
-            default => $model->writeCSV(),
-        };
-    }
+}
 ```
 
 ## Testing

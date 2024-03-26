@@ -57,8 +57,6 @@ class PostWithCsv extends Model
 {
     use HasCsv;
 
-    protected $shouldDecorateWrites = true;
-
     protected $guarded = [];
 
     protected $schema = [

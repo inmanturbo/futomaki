@@ -27,7 +27,15 @@ trait HasCsv
     {
         $this->initCsv();
 
-        return SimpleExcelReader::create($this->CSVPath())->getRows()->toArray();
+        $rows = SimpleExcelReader::create($this->CSVPath())->getRows()->toArray();
+
+        $rows = array_map(function ($row) {
+            return array_map(function ($value) {
+                return $value === '' ? null : $value;
+            }, $row);
+        }, $rows);
+
+        return $rows;
     }
 
     public function cleanupCsvFiles($maxFiles = 3)

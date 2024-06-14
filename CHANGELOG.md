@@ -2,6 +2,15 @@
 
 All notable changes to `futomaki` will be documented in this file.
 
+## v2.0.3 - 2024-06-14
+
+### What's Changed
+
+* Bump aglipanci/laravel-pint-action from 2.3.1 to 2.4 by @dependabot in https://github.com/inmanturbo/futomaki/pull/2
+* Bump dependabot/fetch-metadata from 2.0.0 to 2.1.0 by @dependabot in https://github.com/inmanturbo/futomaki/pull/3
+
+**Full Changelog**: https://github.com/inmanturbo/futomaki/compare/v2.0.2...v2.0.3
+
 ## v2.0.2 - 2024-03-28
 
 ### What's Changed

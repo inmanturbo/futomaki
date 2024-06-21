@@ -112,8 +112,15 @@ trait HasCsv
         copy($this->csvPath(), $this->csvPath().'.'.now()->format('Y-m-d-H-i-s'));
     }
 
-    public function writeCsv()
+    public function writeCsv(bool $force = false)
     {
+        if ($force === false && cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
+            return;
+        }
+
+        // minimum lock: only write csv once in a minute
+        cache()->put('sushi:lock_csv:'.md5($this->csvPath()), true, 60);
+
         $rows = $this->get()->map(fn (self $item) => $item->getAttributes())->toArray();
 
         if (count($rows) === 0) {

@@ -29,10 +29,7 @@ class PostWithFutomakiWrites extends Model
         })->return();
     }
 
-    protected function sushiShouldCache()
-    {
-
-    }
+    protected function sushiShouldCache() {}
 
     public function unlinkFile()
     {

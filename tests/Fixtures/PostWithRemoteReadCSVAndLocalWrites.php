@@ -47,10 +47,7 @@ class PostWithRemoteReadCSVAndLocalWrites extends Model
         return array_merge($remoteRows, $localRows);
     }
 
-    protected function sushiShouldCache()
-    {
-
-    }
+    protected function sushiShouldCache() {}
 
     public function unlinkFile()
     {

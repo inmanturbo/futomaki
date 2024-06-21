@@ -97,6 +97,10 @@ trait Futomaki
             return $datastoreContext->database();
         }
 
+        if(isset(app()['datastore'])) {
+            return (app()['datastore'])->database();
+        }
+
         $database = $database ?? static::sushiDatabase();
         $driver = $driver ?? static::sushiDriver();
 

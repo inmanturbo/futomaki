@@ -2,6 +2,10 @@
 
 All notable changes to `futomaki` will be documented in this file.
 
+## v2.0.8 - 2024-06-21
+
+**Full Changelog**: https://github.com/inmanturbo/futomaki/compare/v2.0.7...v2.0.8
+
 ## v2.0.7 - 2024-06-21
 
 **Full Changelog**: https://github.com/inmanturbo/futomaki/compare/v2.0.6...v2.0.7

@@ -10,7 +10,7 @@ trait HasCsv
 {
     use Futomaki;
 
-    protected $maxFiles = 3;
+    protected $maxFiles = 30;
 
     public static function bootHasCsv()
     {

@@ -114,12 +114,12 @@ trait HasCsv
 
     public function writeCsv()
     {
-        if(cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
+        if (cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
             return;
         }
 
         // minimum lock: only write csv once in a minute
-        cache()->put('sushi:lock_csv:'. md5($this->csvPath()), true, 60);
+        cache()->put('sushi:lock_csv:'.md5($this->csvPath()), true, 60);
 
         $rows = $this->get()->map(fn (self $item) => $item->getAttributes())->toArray();
 

@@ -116,15 +116,20 @@ trait HasCsv
     {
         $rows = $this->get()->map(fn (self $item) => $item->getAttributes())->toArray();
 
-        if (count($rows) > 0) {
-            $this->backupCsv();
-            $this->deleteCsv();
-            touch($this->CsvPath());
-            $writer = SimpleExcelWriter::create($this->csvPath());
-            $writer->addHeader(array_keys($rows[0]));
-            $writer->addRows($rows);
-            $writer->close();
-            $this->cleanupCsvFiles($this->maxFiles);
-        }
+        if (0 === count($rows)) {
+            return;
+        } 
+       
+        $pendingWritePath = $this->csvPath().'pending_write.' . now()->format('Y-m-d-H-i-s');
+        touch($pendingWritePath, time() + 3600);
+        
+        $writer = SimpleExcelWriter::create($pendingWritePath);
+        $writer->addHeader(array_keys($rows[0]));
+        $writer->addRows($rows);
+        $writer->close();
+        
+        $this->backupCsv();
+        copy($pendingWritePath, $this->csvPath());
+        $this->cleanupCsvFiles($this->maxFiles);
     }
 }

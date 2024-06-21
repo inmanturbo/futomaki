@@ -120,7 +120,7 @@ trait HasCsv
             return;
         }
 
-        $pendingWritePath = $this->csvPath().'pending_write.'.now()->format('Y-m-d-H-i-s')'.csv';
+        $pendingWritePath = $this->csvPath().'pending_write.'.now()->format('Y-m-d-H-i-s').'.csv';
         touch($pendingWritePath, time() + 3600);
 
         $writer = SimpleExcelWriter::create($pendingWritePath);

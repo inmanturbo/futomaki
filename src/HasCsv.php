@@ -114,7 +114,7 @@ trait HasCsv
 
     public function writeCsv(bool $force = false)
     {
-        if (false === $force && cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
+        if ($force === false && cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
             return;
         }
 

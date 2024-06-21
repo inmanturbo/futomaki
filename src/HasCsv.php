@@ -112,9 +112,9 @@ trait HasCsv
         copy($this->csvPath(), $this->csvPath().'.'.now()->format('Y-m-d-H-i-s'));
     }
 
-    public function writeCsv()
+    public function writeCsv((bool) $force = false)
     {
-        if (cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
+        if (false === $force && cache()->get('sushi:lock_csv:'.md5($this->csvPath(), false))) {
             return;
         }
 

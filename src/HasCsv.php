@@ -121,7 +121,7 @@ trait HasCsv
         }
 
         $pendingWritePath = $this->csvPath().'pending_write.'.now()->getTimestampMs().'.csv';
-        touch($pendingWritePath, time() + 3600);
+        touch($pendingWritePath);
 
         $writer = SimpleExcelWriter::create($pendingWritePath);
         $writer->addHeader(array_keys($rows[0]));
